@@ -26,37 +26,17 @@
     </script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <style>
-        /* --- Dynamic Background --- */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            /* --- UPDATED IMAGE URL --- */
-            background-image: url('https://w.forfun.com/fetch/91/9115162a443e26217e572e535a968181.jpeg');
-            background-size: cover;
-            background-position: center;
-            z-index: -2;
-            animation: kenburns 40s ease-in-out infinite;
-        }
-        body::after {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(22, 22, 29, 0.7);
-            z-index: -1;
+        /* --- Dynamic Gradient Background --- */
+        body {
+            background: linear-gradient(-45deg, #111827, #1f2937, #1e1b4b, #312e81);
+            background-size: 400% 400%;
+            animation: gradientBG 25s ease infinite;
         }
 
-        @keyframes kenburns {
-            0%, 100% { transform: scale(1) translate(0, 0); }
-            25% { transform: scale(1.1) translate(-2%, 2%); }
-            50% { transform: scale(1) translate(0, 0); }
-            75% { transform: scale(1.1) translate(2%, -2%); }
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         /* --- General Transitions --- */
@@ -74,6 +54,7 @@
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.3s ease-out;
+            background-color: rgba(0,0,0,0.5); /* Added backdrop */
         }
         .modal.is-visible {
             opacity: 1;
@@ -115,7 +96,7 @@
 
     <!-- Auth Container -->
     <div id="auth-container" class="container mx-auto flex items-center justify-center min-h-screen">
-        <div class="w-full max-w-md bg-secondary/80 backdrop-blur-sm p-8 rounded-lg shadow-2xl modal-content">
+        <div class="w-full max-w-md bg-secondary p-8 rounded-lg shadow-2xl modal-content">
             <h2 class="text-3xl font-bold text-center text-text-primary mb-2">Anime Library</h2>
             <p class="text-center text-text-secondary mb-8">Sign in to continue</p>
             <div id="auth-error" class="text-red-500 text-center mb-4 hidden"></div>
@@ -166,19 +147,19 @@
 
         <!-- Stats Dashboard -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div class="bg-secondary/80 backdrop-blur-sm p-4 rounded-lg text-center dashboard-card">
+            <div class="bg-secondary p-4 rounded-lg text-center dashboard-card">
                 <h3 class="text-text-secondary text-sm font-medium">Total Anime</h3>
                 <p id="total-anime" class="text-2xl font-bold text-text-primary">0</p>
             </div>
-            <div class="bg-secondary/80 backdrop-blur-sm p-4 rounded-lg text-center dashboard-card">
+            <div class="bg-secondary p-4 rounded-lg text-center dashboard-card">
                 <h3 class="text-text-secondary text-sm font-medium">Episodes Watched</h3>
                 <p id="total-episodes" class="text-2xl font-bold text-text-primary">0</p>
             </div>
-            <div class="bg-secondary/80 backdrop-blur-sm p-4 rounded-lg text-center dashboard-card">
+            <div class="bg-secondary p-4 rounded-lg text-center dashboard-card">
                 <h3 class="text-text-secondary text-sm font-medium">Avg. Rating</h3>
                 <p id="avg-rating" class="text-2xl font-bold text-text-primary">N/A</p>
             </div>
-            <div class="bg-secondary/80 backdrop-blur-sm p-4 rounded-lg text-center dashboard-card">
+            <div class="bg-secondary p-4 rounded-lg text-center dashboard-card">
                 <h3 class="text-text-secondary text-sm font-medium">Completed</h3>
                 <p id="completed-anime" class="text-2xl font-bold text-text-primary">0</p>
             </div>
@@ -196,7 +177,7 @@
         </div>
 
         <!-- Anime List -->
-        <div class="bg-secondary/80 backdrop-blur-sm rounded-lg shadow-lg overflow-x-auto table-scrollbar">
+        <div class="bg-secondary rounded-lg shadow-lg overflow-x-auto table-scrollbar">
             <table class="w-full text-left">
                 <thead class="bg-accent/50">
                     <tr>
@@ -227,7 +208,7 @@
     </div>
 
     <!-- Modal for adding/editing anime -->
-    <div id="anime-modal" class="fixed inset-0 z-50 items-center justify-center modal modal-backdrop">
+    <div id="anime-modal" class="fixed inset-0 z-50 items-center justify-center modal">
         <div class="bg-secondary rounded-lg shadow-2xl p-8 w-full max-w-md m-4 modal-content">
             <h2 id="modal-title" class="text-2xl font-bold mb-6 text-text-primary">Add a New Anime</h2>
             <form id="anime-form">
@@ -271,7 +252,7 @@
         </div>
     </div>
     
-    <div id="delete-confirm-modal" class="fixed inset-0 z-50 items-center justify-center modal modal-backdrop">
+    <div id="delete-confirm-modal" class="fixed inset-0 z-50 items-center justify-center modal">
         <div class="bg-secondary rounded-lg shadow-2xl p-8 w-full max-w-sm m-4 modal-content">
             <h2 class="text-xl font-bold mb-4 text-text-primary">Confirm Deletion</h2>
             <p class="text-text-secondary mb-6">Are you sure you want to delete this anime? This action cannot be undone.</p>
@@ -484,13 +465,14 @@
                 row.innerHTML = `
                     <td class="p-4 font-medium text-text-primary">${anime.title}</td>
                     <td class="p-4 text-text-secondary">${anime.studio}</td>
-                    <td class="p-4"><span class="px-2 py-1 text-xs font-semibold rounded-full ${getStatusBadge(status)}">${anime.status}</span></td>
+                    <td class="p-4"><span class="px-2 py-1 text-xs font-semibold rounded-full ${getStatusBadge(anime.status)}">${anime.status}</span></td>
                     <td class="p-4 text-lg">${renderStars(anime.rating)}</td>
                     <td class="p-4 text-text-secondary">${anime.episodes}</td>
                     <td class="p-4">
                         <button class="edit-btn p-2 hover:text-brand" data-id="${anime.id}"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg></button>
                         <button class="delete-btn p-2 hover:text-red-500" data-id="${anime.id}"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg></button>
-                    </td>`;
+                    </td>
+                `;
                 animeList.appendChild(row);
             });
         }
