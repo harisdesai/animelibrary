@@ -34,7 +34,8 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-image: url('https://images.alphacoders.com/133/1331046.png');
+            /* --- UPDATED IMAGE URL --- */
+            background-image: url('https://w.forfun.com/fetch/91/9115162a443e26217e572e535a968181.jpeg');
             background-size: cover;
             background-position: center;
             z-index: -2;
@@ -483,7 +484,7 @@
                 row.innerHTML = `
                     <td class="p-4 font-medium text-text-primary">${anime.title}</td>
                     <td class="p-4 text-text-secondary">${anime.studio}</td>
-                    <td class="p-4"><span class="px-2 py-1 text-xs font-semibold rounded-full ${getStatusBadge(anime.status)}">${anime.status}</span></td>
+                    <td class="p-4"><span class="px-2 py-1 text-xs font-semibold rounded-full ${getStatusBadge(status)}">${anime.status}</span></td>
                     <td class="p-4 text-lg">${renderStars(anime.rating)}</td>
                     <td class="p-4 text-text-secondary">${anime.episodes}</td>
                     <td class="p-4">
