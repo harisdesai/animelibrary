@@ -15,7 +15,7 @@
                         'accent': '#3a3a3a',
                         'text-primary': '#ffffff',
                         'text-secondary': '#a0a0a0',
-                        'brand': '#3b82f6', // A nice blue for this version
+                        'brand': '#3b82f6',
                     },
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
@@ -26,50 +26,95 @@
     </script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <style>
-        body {
-            background-color: #1a1a1a;
-            color: #ffffff;
+        /* --- Dynamic Background --- */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('https://images.alphacoders.com/133/1331046.png');
+            background-size: cover;
+            background-position: center;
+            z-index: -2;
+            animation: kenburns 40s ease-in-out infinite;
         }
-        .modal-backdrop {
-            background-color: rgba(0,0,0,0.5);
-        }
-        .star-rating input[type="radio"] { display: none; }
-        .star-rating label {
-            font-size: 2rem;
-            color: #4a5568;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-        .star-rating input[type="radio"]:checked ~ label,
-        .star-rating:hover label,
-        .star-rating label:hover ~ label {
-            color: #f59e0b;
-        }
-        .star-rating input[type="radio"]:hover ~ label {
-             color: #f59e0b;
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(22, 22, 29, 0.7);
+            z-index: -1;
         }
 
-        .table-scrollbar::-webkit-scrollbar {
-            height: 8px;
+        @keyframes kenburns {
+            0%, 100% { transform: scale(1) translate(0, 0); }
+            25% { transform: scale(1.1) translate(-2%, 2%); }
+            50% { transform: scale(1) translate(0, 0); }
+            75% { transform: scale(1.1) translate(2%, -2%); }
         }
-        .table-scrollbar::-webkit-scrollbar-track {
-            background: #2c2c2c;
-            border-radius: 10px;
+
+        /* --- General Transitions --- */
+        button, .filter-btn, .dashboard-card {
+            transition: all 0.2s ease-out;
         }
-        .table-scrollbar::-webkit-scrollbar-thumb {
-            background: #3a3a3a;
-            border-radius: 10px;
+        .dashboard-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
         }
-        .table-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #4a4a4a;
+
+        /* --- Modal Animations --- */
+        .modal {
+            display: flex;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease-out;
         }
+        .modal.is-visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-content {
+            transform: scale(0.95);
+            transition: transform 0.3s ease-out;
+        }
+        .modal.is-visible .modal-content {
+            transform: scale(1);
+        }
+
+        /* --- Table Row Animations --- */
+        @keyframes fadeInRow {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        #anime-list tr {
+            opacity: 0;
+            animation: fadeInRow 0.5s ease-out forwards;
+            animation-delay: calc(var(--i, 0) * 50ms);
+        }
+        
+        /* --- Star Rating --- */
+        .star-rating input[type="radio"] { display: none; }
+        .star-rating label { font-size: 2rem; color: #4a5568; cursor: pointer; transition: color 0.2s; }
+        .star-rating input[type="radio"]:checked ~ label, .star-rating:hover label, .star-rating label:hover ~ label { color: #f59e0b; }
+        .star-rating input[type="radio"]:hover ~ label { color: #f59e0b; }
+
+        /* --- Custom Scrollbar --- */
+        .table-scrollbar::-webkit-scrollbar { height: 8px; }
+        .table-scrollbar::-webkit-scrollbar-track { background: #2c2c2c; border-radius: 10px; }
+        .table-scrollbar::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 10px; }
+        .table-scrollbar::-webkit-scrollbar-thumb:hover { background: #4a4a4a; }
     </style>
 </head>
-<body class="antialiased">
+<body class="antialiased overflow-x-hidden">
 
     <!-- Auth Container -->
     <div id="auth-container" class="container mx-auto flex items-center justify-center min-h-screen">
-        <div class="w-full max-w-md bg-secondary p-8 rounded-lg shadow-2xl">
+        <div class="w-full max-w-md bg-secondary/80 backdrop-blur-sm p-8 rounded-lg shadow-2xl modal-content">
             <h2 class="text-3xl font-bold text-center text-text-primary mb-2">Anime Library</h2>
             <p class="text-center text-text-secondary mb-8">Sign in to continue</p>
             <div id="auth-error" class="text-red-500 text-center mb-4 hidden"></div>
@@ -120,19 +165,19 @@
 
         <!-- Stats Dashboard -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div class="bg-secondary p-4 rounded-lg text-center">
+            <div class="bg-secondary/80 backdrop-blur-sm p-4 rounded-lg text-center dashboard-card">
                 <h3 class="text-text-secondary text-sm font-medium">Total Anime</h3>
                 <p id="total-anime" class="text-2xl font-bold text-text-primary">0</p>
             </div>
-            <div class="bg-secondary p-4 rounded-lg text-center">
+            <div class="bg-secondary/80 backdrop-blur-sm p-4 rounded-lg text-center dashboard-card">
                 <h3 class="text-text-secondary text-sm font-medium">Episodes Watched</h3>
                 <p id="total-episodes" class="text-2xl font-bold text-text-primary">0</p>
             </div>
-            <div class="bg-secondary p-4 rounded-lg text-center">
+            <div class="bg-secondary/80 backdrop-blur-sm p-4 rounded-lg text-center dashboard-card">
                 <h3 class="text-text-secondary text-sm font-medium">Avg. Rating</h3>
                 <p id="avg-rating" class="text-2xl font-bold text-text-primary">N/A</p>
             </div>
-            <div class="bg-secondary p-4 rounded-lg text-center">
+            <div class="bg-secondary/80 backdrop-blur-sm p-4 rounded-lg text-center dashboard-card">
                 <h3 class="text-text-secondary text-sm font-medium">Completed</h3>
                 <p id="completed-anime" class="text-2xl font-bold text-text-primary">0</p>
             </div>
@@ -150,9 +195,9 @@
         </div>
 
         <!-- Anime List -->
-        <div class="bg-secondary rounded-lg shadow-lg overflow-x-auto table-scrollbar">
+        <div class="bg-secondary/80 backdrop-blur-sm rounded-lg shadow-lg overflow-x-auto table-scrollbar">
             <table class="w-full text-left">
-                <thead class="bg-accent">
+                <thead class="bg-accent/50">
                     <tr>
                         <th class="p-4 font-semibold text-text-secondary uppercase">Title</th>
                         <th class="p-4 font-semibold text-text-secondary uppercase">Studio</th>
@@ -181,8 +226,8 @@
     </div>
 
     <!-- Modal for adding/editing anime -->
-    <div id="anime-modal" class="fixed inset-0 z-50 items-center justify-center hidden modal-backdrop">
-        <div class="bg-secondary rounded-lg shadow-2xl p-8 w-full max-w-md m-4">
+    <div id="anime-modal" class="fixed inset-0 z-50 items-center justify-center modal modal-backdrop">
+        <div class="bg-secondary rounded-lg shadow-2xl p-8 w-full max-w-md m-4 modal-content">
             <h2 id="modal-title" class="text-2xl font-bold mb-6 text-text-primary">Add a New Anime</h2>
             <form id="anime-form">
                 <input type="hidden" id="anime-id">
@@ -225,8 +270,8 @@
         </div>
     </div>
     
-    <div id="delete-confirm-modal" class="fixed inset-0 z-50 items-center justify-center hidden modal-backdrop">
-        <div class="bg-secondary rounded-lg shadow-2xl p-8 w-full max-w-sm m-4">
+    <div id="delete-confirm-modal" class="fixed inset-0 z-50 items-center justify-center modal modal-backdrop">
+        <div class="bg-secondary rounded-lg shadow-2xl p-8 w-full max-w-sm m-4 modal-content">
             <h2 class="text-xl font-bold mb-4 text-text-primary">Confirm Deletion</h2>
             <p class="text-text-secondary mb-6">Are you sure you want to delete this anime? This action cannot be undone.</p>
             <div class="flex justify-end gap-4">
@@ -242,7 +287,6 @@
         import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, doc, addDoc, setDoc, deleteDoc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
-        // --- CONFIG AND INITIALIZATION ---
         const firebaseConfig = {
             apiKey: "AIzaSyDWp27n3CH8_XtJHTCsJ36qh4wBC_YNZqY",
             authDomain: "animelibraryforrehan.firebaseapp.com",
@@ -252,7 +296,7 @@
             appId: "1:730194934511:web:0a9e0da6607f5434fc391a",
             measurementId: "G-7DVMENRCL2"
         };
-        const appId = "animelibraryforrehan"; // Using projectId as a stable appId for collection path
+        const appId = "animelibraryforrehan"; 
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
@@ -265,7 +309,6 @@
         let allAnime = [];
         let currentFilter = 'all';
 
-        // --- DOM ELEMENTS ---
         const authContainer = document.getElementById('auth-container');
         const appContainer = document.getElementById('app-container');
         const loginForm = document.getElementById('login-form');
@@ -275,7 +318,6 @@
         const logoutBtn = document.getElementById('logout-btn');
         const authError = document.getElementById('auth-error');
         const userInfo = document.getElementById('user-info');
-
         const addAnimeBtn = document.getElementById('add-anime-btn');
         const animeModal = document.getElementById('anime-modal');
         const cancelBtn = document.getElementById('cancel-btn');
@@ -290,35 +332,15 @@
         const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
         const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
 
-        // --- AUTHENTICATION LOGIC (Identical to game app) ---
         const showAuthError = (message) => {
             authError.textContent = message;
             authError.classList.remove('hidden');
         };
-        loginBtn.addEventListener('click', async (e) => { 
-            e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            try { 
-                await signInWithEmailAndPassword(auth, email, password); 
-            } catch (error) { 
-                showAuthError(error.message); 
-            } 
-        });
-        signupBtn.addEventListener('click', async (e) => { 
-            e.preventDefault(); 
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            try { 
-                await createUserWithEmailAndPassword(auth, email, password); 
-            } catch (error) { 
-                showAuthError(error.message); 
-            } 
-        });
+        loginBtn.addEventListener('click', async (e) => { e.preventDefault(); const email = document.getElementById('email').value; const password = document.getElementById('password').value; try { await signInWithEmailAndPassword(auth, email, password); } catch (error) { showAuthError(error.message); } });
+        signupBtn.addEventListener('click', async (e) => { e.preventDefault(); const email = document.getElementById('email').value; const password = document.getElementById('password').value; try { await createUserWithEmailAndPassword(auth, email, password); } catch (error) { showAuthError(error.message); } });
         googleSigninBtn.addEventListener('click', async () => { try { await signInWithPopup(auth, provider); } catch (error) { showAuthError(error.message); } });
         logoutBtn.addEventListener('click', async () => { await signOut(auth); });
 
-        // --- AUTH STATE OBSERVER ---
         onAuthStateChanged(auth, user => {
             if (user) {
                 userId = user.uid;
@@ -345,29 +367,29 @@
             }
         });
         
-        // --- MODAL HANDLING ---
-        const openModal = () => animeModal.classList.replace('hidden', 'flex');
-        const closeModal = () => animeModal.classList.replace('flex', 'hidden');
+        // --- MODAL HANDLING (with animation classes) ---
+        const openModal = (modalEl) => modalEl.classList.add('is-visible');
+        const closeModal = (modalEl) => modalEl.classList.remove('is-visible');
 
         addAnimeBtn.addEventListener('click', () => {
             modalTitle.textContent = 'Add a New Anime';
             animeForm.reset();
             animeIdInput.value = '';
             document.querySelectorAll('.star-rating input[type="radio"]').forEach(r => r.checked = false);
-            openModal();
+            openModal(animeModal);
         });
-        cancelBtn.addEventListener('click', closeModal);
-        animeModal.addEventListener('click', (e) => { if(e.target === animeModal) closeModal() });
+
+        cancelBtn.addEventListener('click', () => closeModal(animeModal));
+        animeModal.addEventListener('click', (e) => { if (e.target === animeModal) closeModal(animeModal); });
         
-        // --- DELETE CONFIRMATION ---
         let animeToDeleteId = null;
         const openDeleteModal = (id) => {
             animeToDeleteId = id;
-            deleteConfirmModal.classList.replace('hidden', 'flex');
+            openModal(deleteConfirmModal);
         };
         const closeDeleteModal = () => {
             animeToDeleteId = null;
-            deleteConfirmModal.classList.replace('flex', 'hidden');
+            closeModal(deleteConfirmModal);
         };
         cancelDeleteBtn.addEventListener('click', closeDeleteModal);
         confirmDeleteBtn.addEventListener('click', async () => {
@@ -377,7 +399,6 @@
             closeDeleteModal();
         });
 
-        // --- FIRESTORE REALTIME LISTENER ---
         function setupRealtimeListener() {
             if (unsubscribe) unsubscribe();
             const q = query(animeCollectionRef);
@@ -392,11 +413,9 @@
             });
         }
 
-        // --- CRUD OPERATIONS ---
         animeForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             if (!userId) { console.error("User not authenticated"); return; }
-
             const animeData = {
                 title: document.getElementById('title').value,
                 studio: document.getElementById('studio').value,
@@ -408,7 +427,7 @@
             try {
                 if (animeId) { await setDoc(doc(animeCollectionRef, animeId), animeData); } 
                 else { await addDoc(animeCollectionRef, animeData); }
-                closeModal();
+                closeModal(animeModal);
                 animeForm.reset();
             } catch (error) { console.error("Error saving anime:", error); }
         });
@@ -423,17 +442,16 @@
             document.getElementById('status').value = anime.status;
             document.getElementById('episodes').value = anime.episodes;
             document.querySelectorAll('.star-rating input[type="radio"]').forEach(r => { r.checked = r.value == anime.rating; });
-            openModal();
+            openModal(animeModal);
         }
 
-        // --- RENDERING ---
         function getStatusBadge(status) {
             switch (status) {
-                case 'Watching': return 'bg-blue-500 text-blue-100';
-                case 'Completed': return 'bg-green-500 text-green-100';
-                case 'Plan to Watch': return 'bg-yellow-500 text-yellow-100';
-                case 'Dropped': return 'bg-red-500 text-red-100';
-                default: return 'bg-gray-500 text-gray-100';
+                case 'Watching': return 'bg-blue-500/80 text-blue-100';
+                case 'Completed': return 'bg-green-500/80 text-green-100';
+                case 'Plan to Watch': return 'bg-yellow-500/80 text-yellow-100';
+                case 'Dropped': return 'bg-red-500/80 text-red-100';
+                default: return 'bg-gray-500/80 text-gray-100';
             }
         }
         function renderStars(rating) {
@@ -458,9 +476,10 @@
                 }
             } else { noAnimeMessage.classList.add('hidden'); }
 
-            filteredAnime.forEach(anime => {
+            filteredAnime.forEach((anime, index) => {
                 const row = document.createElement('tr');
-                row.className = 'border-b border-accent hover:bg-accent transition-colors';
+                row.className = 'border-b border-accent/50 hover:bg-accent/50 transition-colors';
+                row.style.setProperty('--i', index); // For staggered animation
                 row.innerHTML = `
                     <td class="p-4 font-medium text-text-primary">${anime.title}</td>
                     <td class="p-4 text-text-secondary">${anime.studio}</td>
@@ -475,7 +494,6 @@
             });
         }
         
-        // --- DASHBOARD UPDATES ---
         function updateDashboard() {
             document.getElementById('total-anime').textContent = allAnime.length;
             const totalEpisodes = allAnime.reduce((sum, anime) => sum + (anime.episodes || 0), 0);
@@ -487,7 +505,6 @@
             document.getElementById('completed-anime').textContent = completedCount;
         }
 
-        // --- FILTERING ---
         filterContainer.addEventListener('click', (e) => {
             if (e.target.classList.contains('filter-btn')) {
                 currentFilter = e.target.dataset.filter;
@@ -501,7 +518,6 @@
             }
         });
 
-        // --- EVENT DELEGATION FOR ACTIONS ---
         animeList.addEventListener('click', (e) => {
             const editBtn = e.target.closest('.edit-btn');
             if (editBtn) { editAnime(editBtn.dataset.id); return; }
